@@ -266,6 +266,130 @@ case $opcion in
 		fi
 
 		;;
+	4) ## Modificación de grupos, agregar o eliminar un grupo a un usuario
+		clear
+		echo
+
+		read -p "Ingresar un username para modificar: " mdfygp_user
+
+		if [ -z "$mdfygp_user" ]; then
+			echo
+			echo "Debe ingresar un username para modificar."
+			sleep 3
+		fi
+
+		if id "$mdfygp_user" >/dev/null 2>&1; then
+			sleep 2
+
+			while true;
+			do
+				echo
+				read -p "Ingrese [a] para agregar un grupo, o [d] para eliminar un grupo, o [s/S] para salir: " mdfyaddelgp_user
+				
+				if [ "$mdfyaddelgp_user" = "a" ] || [ "$mdfyaddelgp_user" = "A" ]; then
+					echo
+					sleep 1
+
+					read -p "Ingrese el nombre de grupo que desee agregar: " mdfynwgp_user
+
+					if ! getent group "$mdfynwgp_user" > /dev/null 2>&1; then
+						echo
+						echo "El grupo '$mdfynwgp_user' no existe. Por favor, ingrese un grupo válido."
+						sleep 3
+					else
+						echo
+						read -p "¿Está seguro de agregar el usuario '$mdfygp_user' al grupo '$mdfynwgp_user'? [y/n]: " mdfygp_answer
+
+						if [ "$mdfygp_answer" = "y" ] || [ "$mdfygp_answer" = "Y" ]; then
+							echo
+							sleep 1
+							if sudo usermod -aG "$mdfynwgp_user" "$mdfygp_user" >/dev/null 2>/tmp/err.log; then
+								echo "Se ha añadido el usuario '$mdfygp_user' al grupo '$mdfynwgp_user' correctamente."
+								sleep 3
+								break
+							else
+								echo "Hubo un error al intentar agregar el usuario '$mdfygp_user' al grupo '$mdfynwgp_user'. Intenta nuevamente."
+								sleep 3
+								echo
+								cat /tmp/err.log | tail -n 3
+								echo
+								sleep 3
+								break
+							fi
+						elif [ "$mdfygp_answer" = "n" ] || [ "$mdfygp_answer" = "N" ]; then
+							echo
+							sleep 2
+							echo "No se realizó ninguna modificación en el usuario '$mdfygp_user'."
+							sleep 3
+							break
+						else
+							echo
+							echo "Opción inválida, debes ingresar [y] o [n]."
+							sleep 3
+						fi
+					fi
+				elif [ "$mdfyaddelgp_user" = "d" ] || [ "$mdfyaddelgp_user" = "D" ]; then
+					echo
+					sleep 1
+					
+					read -p "Ingrese el nombre de grupo que desea eliminar: " mdfydlgp_user
+
+					if ! getent group "$mdfydlgp_user" >/dev/null 2>&1; then
+						echo
+						echo "El grupo '$mdfydlgp_user' no existe. Por favor, ingrese un grupo válido."
+						sleep 3
+					else
+						echo
+						read -p "¿Está seguro de eliminar el grupo '$mdfydlgp_user' al usuario '$mdfygp_user'? [y/n]: " mdfydl_answer
+
+						if [ "$mdfydl_answer" = "y" ] || [ "$mdfydl_answer" = "Y" ]; then
+							echo
+							sleep 1
+							if sudo gpasswd -d "$mdfygp_user" "$mdfydlgp_user" >/dev/null 2>/tmp/err.log; then
+								echo "Se ha quitado al usuario '$mdfygp_user' del grupo '$mdfydlgp_user' correctamente."
+								sleep 3
+								break
+							else 
+								echo "Hubo un error al intentar eliminar al usuario '$mdfygp_user' del grupo '$mdfydlgp_user'. Intenta nuevamente."
+								sleep 3
+								echo
+								cat /tmp/err.log | tail -n 3
+								echo
+								sleep 3
+								break
+							fi
+						elif [ "$mdfydl_answer" = "n" ] || [ "$mdfydl_answer" = "N" ]; then
+							echo
+							sleep 2
+							echo "No se realizó ninguna modificación en el usuario '$mdfygp_user'."
+							sleep 3
+							break
+						else
+							echo
+							echo "Opción inválida, debes ingresar [y] o [n]."
+							sleep 3
+						fi
+					fi
+
+				elif [ "$mdfyaddelgp_user" = "s" ] || [ "$mdfyaddelgp_user" = "S" ]; then
+					echo
+					sleep 1
+					break
+				else
+					echo
+					sleep 1
+					echo "Opción no válida, debes ingresar [a] para agregar un grupo, [d] para eliminar un grupo, o [s] para salir."
+					sleep 3
+				fi
+			done
+		else
+			echo
+			sleep 1
+			echo "El usuario '$mdfygp_user' no existe."
+			sleep 3
+		fi
+
+		;;
 	s|S)
 		clear
 		exit
