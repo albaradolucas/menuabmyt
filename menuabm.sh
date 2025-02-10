@@ -390,6 +390,70 @@ case $opcion in
 		fi
 
 		;;
+	5) ## Eliminar un usuario
+		clear
+		echo
+
+		read -p "Ingrese un username para eliminar: " del_user
+
+		if [ -z "$del_user" ]; then
+			echo
+			echo "Debe ingresar un username para eliminar."
+			sleep 3
+		elif id "$del_user" >/dev/null 2>&1; then
+			sleep 1
+			while true; do
+				clear
+				echo
+				echo
+				read -p "¿Está seguro que desea eliminar el usuario '$del_user'? [y/n]: " deluser_answer
+
+				if [ "$deluser_answer" = "n" ] || [ "$deluser_answer" = "N" ]; then
+					sleep 2
+					echo
+					echo "No se realizó ninguna modificación en el usuario '$del_user'."
+					sleep 3
+					break
+				elif [ "$deluser_answer" = "y" ] || [ "$deluser_answer" = "Y" ]; then
+					echo
+					echo
+					read -p "¿Quiere borrar también el directorio /home del usuario? [y/n]: " deldir_answer
+
+					if [ "$deldir_answer" = "y" ] || [ "$deldir_answer" = "Y" ]; then
+						sudo userdel -r "$del_user" >/dev/null 2>&1
+						sleep 2
+						echo
+						echo "Se ha eliminado con éxito el usuario '$del_user', junto con su directorio /home."
+						sleep 3
+						break
+					elif [ "$deldir_answer" = "n" ] || [ "$deldir_answer" = "N" ]; then
+						sudo userdel "$del_user" >/dev/null 2>&1
+						sleep 2
+						echo
+						echo "Se eliminó correctamente el usuario '$del_user'."
+						sleep 1
+						echo 
+						echo "No se hicieron modificaciones en el directorio /home."
+						sleep 3
+						break
+					else
+						sleep 2
+						echo
+						echo "Opción no válida, intenta nuevamente."
+					fi
+				else
+					sleep 2
+					echo
+					echo "Opción no válida, intenta nuevamente."
+				fi
+			done
+		else
+			sleep 2
+			echo 
+			echo "El usuaio '$del_user' no existe."
+			sleep 3
+		fi
+		;;
 	s|S)
 		clear
 		exit
